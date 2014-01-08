@@ -12,7 +12,7 @@ import utility
 import config
 from lib.pydub import AudioSegment
 
-import pygame
+#import pygame
 
 
 def build(path):
