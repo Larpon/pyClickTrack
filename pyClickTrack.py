@@ -14,6 +14,20 @@ from lib.pydub import AudioSegment
 
 #import pygame
 
+def sound_dict(value):
+	displacement = 0
+	sound = AudioSegment.silent(0)
+	if type(value) is list:
+		try:
+			displacement = int(value[0])
+			sound = AudioSegment.from_wav(value[1])
+		except ValueError:
+			displacement = int(value[1])
+			sound = AudioSegment.from_wav(value[0])
+	else:
+		sound = AudioSegment.from_wav(value)
+	
+	return { 'sound' : sound, 'displacement' : displacement } 
 
 def build(path):
 	config.clear()
@@ -27,12 +41,25 @@ def build(path):
 	pygame.mixer.music.play()
 	pygame.event.wait()
 	"""
-	parts = config.get('track.parts')
-	silence = config.get('track.silence')
+	
+	
+	parts = {}
+	sounds = {
+		'+' : sound_dict("data/click_hi.wav"),
+		'-' : sound_dict("data/click_lo.wav")
+	}
+	silence = 0
 	outfile = filename+'.wav'
 	
-	hi = AudioSegment.from_wav("data/ping_hi.wav")
-	lo = AudioSegment.from_wav("data/ping_lo.wav")
+	
+	if config.has('track.parts'):
+		parts = config.get('track.parts')
+	if config.has('track.silence'):
+		silence = config.get('track.silence')
+	if config.has('track.sounds'):
+		custom_sounds = config.get('track.sounds')
+		for k,v in custom_sounds.iteritems():
+			sounds[k] = sound_dict(v)
 	
 	track = AudioSegment.silent(silence)
 	for part in parts:
@@ -57,14 +84,34 @@ def build(path):
 		
 		for b in range(0, bars):
 			for symbol in bar:
-				tick = hi
-				if symbol == '-':
-					tick = lo
-				tick_length = len(tick)
-				pad = AudioSegment.silent(round(bar_length - tick_length))
+				try:
+					sound = sounds[symbol]
+				except KeyError:
+					sound = sounds['+']
+					
+				tick = sound['sound']
+				tick_displacement = sound['displacement']
 				
-				click = tick + pad
-				track += click
+				if len(tick) < bar_length:
+					fill = round(bar_length - len(tick))
+					pad = AudioSegment.silent(fill)
+					tick = tick + pad
+				if len(tick) > bar_length:
+					tick = tick[:bar_length]
+				#log.debug("before track: %s tick: %s displace: %s",len(track),len(tick),tick_displacement)
+				if len(track) >= tick_displacement and tick_displacement > 0:
+					mix_from = len(track)-tick_displacement
+					track += AudioSegment.silent(len(tick)-tick_displacement)
+					track = track.overlay(tick, position=mix_from)
+				else:
+					displace = len(tick) - tick_displacement
+					if displace < len(tick):
+						tick = tick[displace:]
+					track += tick
+					
+				#log.debug("after track: %s tick: %s displace: %s",len(track),len(tick),tick_displacement)
+					
+				#track += click
 
 	if utility.file_exists(outfile):
 		os.unlink(outfile)
