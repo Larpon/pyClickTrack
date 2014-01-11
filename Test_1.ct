@@ -1,0 +1,60 @@
+#
+# YAML config file format
+# http://yaml.org
+# See examples at http://yaml-online-parser.appspot.com
+#
+
+track:
+  silence: 1000 # Start the track with 1 second (1000 milliseconds) of silence.
+
+  parts:
+    - part: 'Intro (Classic start!)'
+      bpm: 120
+      bars: 4
+      bar: '+---'
+
+    - part: 'Verse 1'
+      bpm: 140
+      bars: 4
+      bar: '+---'
+      
+    - part: 'Chorus 1'
+      bpm: 160
+      bars: 4
+      bar: '+---'
+      
+      # Add extra hi click on every second hit in this verse (the '+-+-')
+    - part: 'Verse 2'
+      bpm: 140
+      bars: 4
+      bar: '+-+-'
+      
+    - part: 'Chorus 2'
+      bpm: 160
+      bars: 4
+      bar: '+---'
+      
+      # Epic solo speed bridge with hi clicks all the way (just to piss the drummer off!)
+    - part: 'Bridge'
+      bpm: 200
+      bars: 8
+      bar: '++++'
+      
+      # Return to verse and chorus 1 - but with custom loaded clicks.
+    - part: 'Verse 1'
+      bpm: 140
+      bars: 4
+      bar: '@==='
+      
+    - part: 'Chorus 1'
+      bpm: 160
+      bars: 4
+      bar: '@==='
+      
+      # Slow outro
+    - part: 'Outro'
+      bpm: 100
+      bars: 4
+      bar: '+-----'
+      
+# Add as many - part: entries as you like in each file - just remember that YAML is indentation based! 
