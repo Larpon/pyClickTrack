@@ -10,11 +10,17 @@ Quick start
 
 See if stuff works:
 
-### Linux
-$ ``python pyClickTrack ./Test.ct``
+### Linux (bash-like)
+``
+cd <path/to/pyClickTrack>
+python ./pyClickTrack.py Test.ct
+``
 
-### Windows (if python is in path):
-C:\> ``python pyClickTrack Test.ct``
+### Windows (cmd)
+``
+cd <path/to/pyClickTrack>
+python ./pyClickTrack.py Test.ct
+``
 
 The above should create a file named *Test.wav* in the current directory.
 
