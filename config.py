@@ -41,6 +41,10 @@ def get(path):
 	keys = path.split('.')
 	keys.reverse()
 	return _r_get(configs,keys)
+
+def has(path):
+	return get(path) is not None
+	
 	
 def _r_get(segment,keys):
 	try:
