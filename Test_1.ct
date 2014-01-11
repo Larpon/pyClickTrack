@@ -44,12 +44,12 @@ track:
     - part: 'Verse 1'
       bpm: 140
       bars: 4
-      bar: '@==='
+      bar: '+---'
       
     - part: 'Chorus 1'
       bpm: 160
       bars: 4
-      bar: '@==='
+      bar: '+---'
       
       # Slow outro
     - part: 'Outro'

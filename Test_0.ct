@@ -1,0 +1,33 @@
+#
+# YAML config file format
+# http://yaml.org
+# See examples at http://yaml-online-parser.appspot.com
+#
+
+track:
+  silence: 0 # Start the track with 1 second (1000 milliseconds) of silence.
+  sounds:
+    '@': 'data/custom_example_hi.wav'
+    '=': ['data/custom_example_lo.wav',44]
+  parts:
+    - part: 'Count-in'
+      bpm: 140
+      bars: 1
+      bar: '++++'
+
+      # Return to verse and chorus 1 - but with custom loaded clicks.
+    - part: 'Verse'
+      bpm: 140
+      bars: 2
+      bar: '@==='
+      
+    - part: 'Chorus'
+      bpm: 180
+      bars: 2
+      bar: '@==='
+      
+    - part: 'Outro'
+      bpm: 140
+      bars: 1
+      bar: '++++'
+#+---
