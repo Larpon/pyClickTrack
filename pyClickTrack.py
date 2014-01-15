@@ -63,6 +63,7 @@ def build(path):
 	
 	track = AudioSegment.silent(silence)
 	clicks = 0
+	bars_length = 0
 	for part in parts:
 		name = part['part']
 		bpm = part['bpm']
@@ -78,8 +79,8 @@ def build(path):
 		# Length (in seconds)
 		length = float(beats) / bps
 		# Bar length (in milliseconds)
-		bar_length = ((length / bars) / bpb) * 1000
-		bar_length = round(bar_length)
+		bar_length_f = ((length / bars) / bpb) * 1000
+		bar_length = round(bar_length_f)
 		
 		displacement = 0
 		
@@ -87,6 +88,8 @@ def build(path):
 		
 		for b in range(0, bars):
 			for symbol in bar:
+				bars_length += bar_length_f
+				
 				clicks += 1
 				
 				try:
@@ -97,24 +100,24 @@ def build(path):
 				click = sound['click']
 				click_displacement = sound['displacement']
 				
-				if len(click) < bar_length:
-					fill = round(bar_length - len(click))
+				if len(click) < bar_length_f:
+					fill = round(bar_length_f - len(click))
 					pad = AudioSegment.silent(fill)
 					click = click + pad
 				
-				if len(click) > bar_length:
-					log.debug('Click %s (longer than bar) length: %s displacement: %s Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
-					mix_from = len(track)-displacement-click_displacement
+				if len(click) > bar_length_f:
+					log.debug('Click %s (longer than bar) length: %s displacement: %s. Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
+					mix_long = len(track)-displacement-click_displacement
 					track += AudioSegment.silent(len(click)-displacement-click_displacement)
-					track = track.overlay(click, position=mix_from)
+					track = track.overlay(click, position=mix_long)
 				else:
 					if displacement > 0:
-						log.debug('Click %s (normal, displace) length: %s displacement: %s Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
+						log.debug('Click %s (normal, displace) length: %s displacement: %s. Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
 						mix_from = len(track)-displacement-click_displacement
 						track += AudioSegment.silent(len(click)-displacement-click_displacement)
 						track = track.overlay(click, position=mix_from)
 					else:
-						log.debug('Click %s (normal) length: %s displacement: %s Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
+						log.debug('Click %s (normal) length: %s displacement: %s. Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
 						track += click
 				"""
 				#log.debug("before track: %s click: %s displace: %s",len(track),len(click),click_displacement)
@@ -132,14 +135,19 @@ def build(path):
 				
 				#log.debug("after track: %s click: %s displace: %s",len(track),len(click),click_displacement)
 				"""
-				if len(click) > bar_length:
-					displacement = int(round(len(click) - bar_length))
+				if len(click) > bar_length_f:
+					displacement = int(round(len(click) - bar_length_f))
 				else:
 					displacement = 0
 				#log.debug('Track displacement: %s',displacement)
 					
 				#track += click
-				
+			log.debug('Bars length %s Track length: %s',bars_length,len(track))
+			if len(track) < bars_length:
+				patch = round(bars_length - len(track))
+				log.debug(patch)
+				track += AudioSegment.silent(patch)
+				log.debug('Click %s (end patch) length: %s displacement: %s. Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
 
 	if utility.file_exists(outfile):
 		os.unlink(outfile)
