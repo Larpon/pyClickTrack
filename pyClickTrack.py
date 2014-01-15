@@ -62,8 +62,10 @@ def build(path):
 			sounds[k] = sound_dict(v)
 	
 	track = AudioSegment.silent(silence)
+	position = len(track)
+	
 	clicks = 0
-	bars_length = 0
+	
 	for part in parts:
 		name = part['part']
 		bpm = part['bpm']
@@ -78,14 +80,53 @@ def build(path):
 		beats = float(bars) * bpb
 		# Length (in seconds)
 		length = float(beats) / bps
-		# Bar length (in milliseconds)
-		bar_length_f = ((length / bars) / bpb) * 1000
-		bar_length = round(bar_length_f)
+		# Bar length (in seconds)
+		bar_length = ((length / bars) / bpb)
+		#bar_length = round(bar_length_f)
+		
+		displacement = 0
+		
+		log.debug('Preparing "%s" as %s/%s @ %sbpm. %sbps %sbpb %sbeats, length: %s, bar length:%s',name,bars,bpb,bpm,bps,bpb,beats,length,bar_length)
+		
+		track += AudioSegment.silent((length * 1000))
+		
+	for part in parts:
+		name = part['part']
+		bpm = part['bpm']
+		bar = part['bar']
+		bars = part['bars']
+		
+		# Beats per second
+		bps = float(bpm) / 60
+		# Beats per bar
+		bpb = float(len(bar))
+		# Beats = bars * beats per bar
+		beats = float(bars) * bpb
+		# Length (in seconds)
+		length = float(beats) / bps
+		# Bar length (in seconds)
+		bar_length = ((length / bars) / bpb)
+		#bar_length = round(bar_length_f)
 		
 		displacement = 0
 		
 		log.debug('Building "%s" as %s/%s @ %sbpm. %sbps %sbpb %sbeats, length: %s, bar length:%s',name,bars,bpb,bpm,bps,bpb,beats,length,bar_length)
 		
+		for b in range(0, bars):
+			for symbol in bar:
+				clicks += 1
+				
+				try:
+					sound = sounds[symbol]
+				except KeyError:
+					sound = sounds['+']
+				
+				click = sound['click']
+				click_displacement = sound['displacement']
+				
+				track = track.overlay(click, position=(position-click_displacement))
+				position += bar_length*1000
+		"""
 		for b in range(0, bars):
 			for symbol in bar:
 				bars_length += bar_length_f
@@ -119,22 +160,22 @@ def build(path):
 					else:
 						log.debug('Click %s (normal) length: %s displacement: %s. Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
 						track += click
-				"""
+				
 				#log.debug("before track: %s click: %s displace: %s",len(track),len(click),click_displacement)
-				if len(track) >= click_displacement and click_displacement > 0:
-					mix_from = len(track)-displacement-click_displacement
-					#track += AudioSegment.silent(len(click)-click_displacement)
-					track += click
-				else:
-					displace = len(click) - click_displacement
-					if displace < len(click):
-						click = click[displace:]
-					track += click
+				#if len(track) >= click_displacement and click_displacement > 0:
+					#mix_from = len(track)-displacement-click_displacement
+					##track += AudioSegment.silent(len(click)-click_displacement)
+					#track += click
+				#else:
+					#displace = len(click) - click_displacement
+					#if displace < len(click):
+						#click = click[displace:]
+					#track += click
 					
 				
 				
 				#log.debug("after track: %s click: %s displace: %s",len(track),len(click),click_displacement)
-				"""
+				
 				if len(click) > bar_length_f:
 					displacement = int(round(len(click) - bar_length_f))
 				else:
@@ -148,7 +189,7 @@ def build(path):
 				log.debug(patch)
 				track += AudioSegment.silent(patch)
 				log.debug('Click %s (end patch) length: %s displacement: %s. Track length: %s displacement: %s',clicks,len(click),click_displacement,len(track),displacement)
-
+		"""
 	if utility.file_exists(outfile):
 		os.unlink(outfile)
 	track.export(outfile,format="wav")
