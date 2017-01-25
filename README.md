@@ -1,7 +1,7 @@
 pyClickTrack
 ============
 
-pyClickTrack is, as the name suggests, a python program to generate click tracks. A click track is commonly used by musicians to navigate and time the beat of any given song. Click tracks can be crucial in helping to keep the timing or *tightness* right when recording live or via a [DAW](http://en.wikipedia.org/wiki/Digital_audio_workstation "Digital Audio Workstation").
+pyClickTrack is, as the name suggests, a python script to generate click tracks. A click track is commonly used by musicians to navigate and time the beat of any given song. Click tracks can be crucial in helping to keep the timing or *tightness* right when recording live or via a [DAW](http://en.wikipedia.org/wiki/Digital_audio_workstation "Digital Audio Workstation").
 
 pyClickTrack uses [YAML](http://yaml.org/ "YAML.org") (an easy to read plain text configuration file format) as input and standard WAVE (.wav) files as output - if ffmpeg or libav is present on the system pyClickTrack will unlock a very large range of output formats as it relies on [pyDub](https://github.com/jiaaro/pydub) as audio processing library.
 
